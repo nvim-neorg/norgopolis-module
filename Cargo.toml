@@ -1,5 +1,8 @@
 [package]
 name = "norgopolis-module"
+description = "A library for creating your own Norgopolis modules in Rust. "
+repository = "https://github.com/nvim-neorg/norgopolis-module"
+license = "MIT"
 version = "0.1.0"
 edition = "2021"
 

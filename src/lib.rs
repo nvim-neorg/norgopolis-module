@@ -1,21 +1,24 @@
 mod stdio_service;
-pub mod module_communication;
 pub mod invoker_service;
 
 use invoker_service::InvokerService;
 use invoker_service::Service;
-use tokio_stream::wrappers::ReceiverStream;
 use module_communication::invoker_server::InvokerServer;
 use stdio_service::StdioService;
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::transport::Server;
 
 pub use tonic::async_trait;
-pub use tonic::{Status, Code};
+pub use tonic::{Code, Status};
+pub use norgopolis_protos::module_communication;
 
 pub struct Module {}
 
 impl Module {
-    pub async fn start(service: impl Service + Sync + Send + 'static) -> Result<(), anyhow::Error> {
+    pub async fn start<S>(service: S) -> Result<(), anyhow::Error>
+    where
+        S: Service + Sync + Send + 'static,
+    {
         // TODO: Make configurable
         let (stdin, stdout) = (tokio::io::stdin(), tokio::io::stdout());
         let stdio_service = StdioService { stdin, stdout };

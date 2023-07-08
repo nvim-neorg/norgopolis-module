@@ -1,6 +1,6 @@
 use std::pin::Pin;
 
-use tokio::io::{Stdin, Stdout, AsyncWrite, AsyncRead, ReadBuf};
+use tokio::io::{AsyncRead, AsyncWrite, ReadBuf, Stdin, Stdout};
 use tonic::transport::server::Connected;
 
 #[derive(Debug)]

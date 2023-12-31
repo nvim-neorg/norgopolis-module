@@ -17,14 +17,15 @@ pub trait Service {
 
 pub struct InvokerService<T> {
     service: T,
+    tx: tokio::sync::mpsc::Sender<()>,
 }
 
 impl<T> InvokerService<T>
 where
     T: Service,
 {
-    pub fn new(service: T) -> InvokerService<T> {
-        InvokerService { service }
+    pub fn new(service: T, tx: tokio::sync::mpsc::Sender<()>) -> InvokerService<T> {
+        InvokerService { service, tx }
     }
 }
 
@@ -40,6 +41,8 @@ where
         request: Request<Invocation>,
     ) -> Result<Response<Self::InvokeStream>, Status> {
         let invocation = request.into_inner();
+
+        self.tx.send(()).await.unwrap();
 
         let response = self
             .service

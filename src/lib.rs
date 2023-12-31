@@ -16,13 +16,17 @@ pub use norgopolis_protos::module_communication;
 pub use tonic::async_trait;
 pub use tonic::{Code, Status};
 
+pub trait Shutdown {
+    fn shutdown(&self);
+}
+
 // TODO: Make the timeout for the module configurable via Module::new().timeout(xyz).start()
 pub struct Module {}
 
 impl Module {
     pub async fn start<S>(service: S) -> Result<(), anyhow::Error>
     where
-        S: Service + Sync + Send + 'static,
+        S: Service + Shutdown + Sync + Send + Copy + 'static,
     {
         let (keepalive_tx, mut keepalive_rx) = tokio::sync::mpsc::channel::<()>(1);
 
@@ -30,7 +34,7 @@ impl Module {
             sleep(Duration::from_secs(60 * 5)).await;
 
             if keepalive_rx.recv().now_or_never().is_none() {
-                std::process::exit(0);
+                service.shutdown();
             }
         });
 

@@ -20,21 +20,32 @@ pub trait Shutdown {
     fn shutdown(&self);
 }
 
-// TODO: Make the timeout for the module configurable via Module::new().timeout(xyz).start()
-pub struct Module {}
+pub struct Module {
+    pub timeout: Duration,
+}
 
 impl Module {
-    pub async fn start<S>(service: S) -> Result<(), anyhow::Error>
+    pub fn new() -> Self {
+        Module {
+            timeout: Duration::from_secs(60 * 5),
+        }
+    }
+
+    pub fn timeout(self, timeout: Duration) -> Self {
+        Module { timeout }
+    }
+
+    pub async fn start<S>(self, service: S) -> Result<(), anyhow::Error>
     where
-        S: Service + Shutdown + Sync + Send + Copy + 'static,
+        S: Service + Shutdown + Sync + Send + 'static,
     {
         let (keepalive_tx, mut keepalive_rx) = tokio::sync::mpsc::channel::<()>(1);
 
         tokio::spawn(async move {
-            sleep(Duration::from_secs(60 * 5)).await;
+            sleep(self.timeout).await;
 
             if keepalive_rx.recv().now_or_never().is_none() {
-                service.shutdown();
+                std::process::exit(0);
             }
         });
 

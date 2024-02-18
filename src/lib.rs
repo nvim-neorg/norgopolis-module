@@ -20,6 +20,12 @@ pub struct Module {
     pub timeout: Duration,
 }
 
+impl Default for Module {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Module {
     pub fn new() -> Self {
         Module {
@@ -35,7 +41,7 @@ impl Module {
     where
         S: Service + Sync + Send + 'static,
     {
-        let (keepalive_tx, mut keepalive_rx) = tokio::sync::mpsc::channel::<()>(1);
+        let (keepalive_tx, mut keepalive_rx) = tokio::sync::mpsc::unbounded_channel::<()>();
 
         tokio::spawn(async move {
             sleep(self.timeout).await;
@@ -43,6 +49,9 @@ impl Module {
             if keepalive_rx.recv().now_or_never().is_none() {
                 std::process::exit(0);
             }
+
+            // Drain the remained of the messages.
+            while keepalive_rx.recv().now_or_never().is_some() {}
         });
 
         let (stdin, stdout) = (tokio::io::stdin(), tokio::io::stdout());

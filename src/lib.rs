@@ -147,7 +147,7 @@
 //! ```rs
 //! #[tokio::main]
 //! async fn main() {
-//!     Module::new().start(Breeze::default())
+//!     Module::new().start(MyModule::default())
 //!         .await
 //!         .unwrap()
 //! }

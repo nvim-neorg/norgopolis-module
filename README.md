@@ -46,6 +46,7 @@ use norgopolis_module::{
     invoker_service::Service, module_communication::MessagePack, Code, Module, Status,
 };
 
+#[derive(Default)]
 struct MyModule {
     // add any data or state you might need to maintain here...
 }
@@ -167,5 +168,19 @@ match function.as_str() {
 First, we create a sender and receiver via tokio's `unbounded_channel()`. This allows us to send data to the client
 and for the client to read data from the module. All return messages have to be encoded via `MessagePack::encode`.
 
-Voila! You now have a fundamental understanding of how modules communicate with Norgopolis and how to write your own.
-Happy coding!
+### Running the Module
+
+Now that we have all of the code set up, create an asynchronous main function. In here we will instantiate our
+module and kick it into full gear:
+
+```rs
+#[tokio::main]
+async fn main() {
+    Module::new().start(Breeze::default())
+        .await
+        .unwrap()
+}
+```
+
+Voila! You now have a fundamental understanding of how modules communicate with Norgopolis and how to write your own
+norgopolis module. Happy coding!

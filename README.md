@@ -122,7 +122,7 @@ Aftewards, it's a simple matter of running `decode` on your arguments:
 match function.as_str() {
     "my-function" => {
         let args: MyParameters = args
-            .unwrap() // WARNING: This is for demonstration only, don't actually do this :)
+            .unwrap() // WARNING: Don't actually use unwrap() in your code :)
             .decode()
             .map_err(|err| Status::new(Code::InvalidArgument, err.to_string()))?;
 
@@ -149,7 +149,7 @@ Let's showcase all of this via an example:
 match function.as_str() {
     "my-function" => {
         let args: MyParameters = args
-            .unwrap() // WARNING: This is for demonstration only, don't actually do this :)
+            .unwrap() // WARNING: Don't actually use unwrap() in your code :)
             .decode()
             .map_err(|err| Status::new(Code::InvalidArgument, err.to_string()))?;
 
@@ -164,4 +164,8 @@ match function.as_str() {
 }
 ```
 
-TODO: Rest of the document.
+First, we create a sender and receiver via tokio's `unbounded_channel()`. This allows us to send data to the client
+and for the client to read data from the module. All return messages have to be encoded via `MessagePack::encode`.
+
+Voila! You now have a fundamental understanding of how modules communicate with Norgopolis and how to write your own.
+Happy coding!
